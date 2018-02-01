@@ -41,7 +41,20 @@ func main() {
 		panic(err)
 	}
 
+	health := client.Health()
+	healthChecks, _, err := health.State("any", &query_options)
+	if err != nil {
+		panic(err)
+	}
+
 	for _, node := range nodes {
-		fmt.Printf("%s\t%s\t%s\n", node.Node, node.Address, node.Datacenter)
+		status := "passing"
+		for _, healthCheck := range healthChecks {
+			if healthCheck.Node == node.Node && healthCheck.Status != "passing" {
+				status = healthCheck.Status
+			}
+		}
+
+		fmt.Printf("%s\t%s\t%s\t%s\n", node.Node, node.Address, node.Datacenter, status)
 	}
 }
