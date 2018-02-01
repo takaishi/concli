@@ -25,7 +25,7 @@ func main() {
 	api_config := api.DefaultConfig()
 	api_config.Address = u.Host
 	api_config.Scheme = u.Scheme
-	client, err := api.NewClient(api.DefaultConfig())
+	client, err := api.NewClient(api_config)
 	if err != nil {
 		panic(err)
 	}
