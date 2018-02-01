@@ -12,7 +12,7 @@ type Config struct {
 	URL string
 }
 
-func main() {
+func clientConfig() api.Config {
 	var config Config
 	_, err := toml.DecodeFile(fmt.Sprintf("%s/.cnodes", os.Getenv("HOME")), &config)
 	if err != nil {
@@ -25,7 +25,12 @@ func main() {
 	api_config := api.DefaultConfig()
 	api_config.Address = u.Host
 	api_config.Scheme = u.Scheme
-	client, err := api.NewClient(api_config)
+	return *api_config
+}
+
+func main() {
+	config := clientConfig()
+	client, err := api.NewClient(&config)
 	if err != nil {
 		panic(err)
 	}
