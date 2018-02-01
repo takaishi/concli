@@ -16,5 +16,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%+v", nodes)
+	for _, node := range nodes {
+		fmt.Printf("%s\t%s\t%s\n", node.Node, node.Address, node.Datacenter)
+	}
 }
