@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"github.com/hashicorp/consul/api"
+	"github.com/olekukonko/tablewriter"
+	"os"
 )
 
 func main() {
@@ -16,7 +17,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Node", "Address", "Dataenter"})
 	for _, node := range nodes {
-		fmt.Printf("%s\t%s\t%s\n", node.Node, node.Address, node.Datacenter)
+		table.Append([]string{node.Node, node.Address, node.Datacenter})
 	}
+	table.Render()
+
 }
