@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/BurntSushi/toml"
+	"github.com/go-ini/ini"
 	"github.com/hashicorp/consul/api"
+	"io/ioutil"
 	"net/url"
 	"os"
 )
@@ -12,24 +13,40 @@ type Config struct {
 	URL string
 }
 
-func clientConfig() api.Config {
-	var config Config
-	_, err := toml.DecodeFile(fmt.Sprintf("%s/.cnodes", os.Getenv("HOME")), &config)
-	if err != nil {
-		panic(err)
-	}
-	u, err := url.Parse(config.URL)
-	if err != nil {
-		panic(err)
-	}
+func clientConfig(profile string) (api.Config, error) {
 	api_config := api.DefaultConfig()
+
+	f := fmt.Sprintf("%s/.cnodes", os.Getenv("HOME"))
+	data, err := ioutil.ReadFile(f)
+	if err != nil {
+		return *api_config, err
+	}
+	ini, err := ini.Load(data, f)
+	if err != nil {
+		return *api_config, err
+	}
+	sec, err := ini.GetSection(profile)
+	if err != nil {
+		return *api_config, err
+	}
+	consul_url := sec.Key("url").String()
+	fmt.Println(consul_url)
+
+	u, err := url.Parse(consul_url)
+	if err != nil {
+		return *api_config, err
+	}
 	api_config.Address = u.Host
 	api_config.Scheme = u.Scheme
-	return *api_config
+	return *api_config, nil
 }
 
 func main() {
-	config := clientConfig()
+	config, err := clientConfig("default")
+	if err != nil {
+		panic(err)
+	}
+
 	client, err := api.NewClient(&config)
 	if err != nil {
 		panic(err)
