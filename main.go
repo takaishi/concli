@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-ini/ini"
 	"github.com/hashicorp/consul/api"
+	flags "github.com/jessevdk/go-flags"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -11,6 +12,10 @@ import (
 
 type Config struct {
 	URL string
+}
+
+type Options struct {
+	Profile string `short:"p" long:"profile" default:"default"`
 }
 
 func clientConfig(profile string) (api.Config, error) {
@@ -42,7 +47,14 @@ func clientConfig(profile string) (api.Config, error) {
 }
 
 func main() {
-	config, err := clientConfig("default")
+	var opts Options
+	_, err := flags.Parse(&opts)
+
+	if err != nil {
+		os.Exit(1)
+	}
+
+	config, err := clientConfig(opts.Profile)
 	if err != nil {
 		panic(err)
 	}
