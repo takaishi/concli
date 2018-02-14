@@ -84,6 +84,6 @@ func main() {
 			}
 		}
 
-		fmt.Printf("%s\t%s\t%s\t%s\n", node.Node, node.Address, node.Datacenter, status)
+		fmt.Printf("%-9s %-16s %s %s\n", status, node.Address, node.Node, node.Datacenter)
 	}
 }
