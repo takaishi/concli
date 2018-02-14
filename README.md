@@ -1,4 +1,4 @@
-# cnode
+# cnodes
 
 ```
 $ cnodes
