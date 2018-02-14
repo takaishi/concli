@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/go-ini/ini"
 	"github.com/hashicorp/consul/api"
 	flags "github.com/jessevdk/go-flags"
@@ -84,6 +85,12 @@ func main() {
 			}
 		}
 
-		fmt.Printf("%-9s %-16s %s %s\n", status, node.Address, node.Node, node.Datacenter)
+		l := fmt.Sprintf("%-9s %-16s %s %s\n", status, node.Address, node.Node, node.Datacenter)
+		if status == "passing" {
+			color.Green(l)
+		} else if status == "critical" {
+			color.Red(l)
+
+		}
 	}
 }
