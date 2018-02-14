@@ -36,7 +36,6 @@ func clientConfig(profile string) (api.Config, error) {
 		return *api_config, err
 	}
 	consul_url := sec.Key("url").String()
-	fmt.Println(consul_url)
 
 	u, err := url.Parse(consul_url)
 	if err != nil {
