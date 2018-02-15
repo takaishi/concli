@@ -98,9 +98,10 @@ func main() {
 		for _, cfg := range configs {
 			printNodes(cfg)
 		}
-	}
-	err = printNodes(configs[opts.Profile])
-	if err != nil {
-		log.Fatalln(err)
+	} else {
+		err = printNodes(configs[opts.Profile])
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 }
