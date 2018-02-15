@@ -6,7 +6,9 @@ import (
 	"github.com/go-ini/ini"
 	"github.com/hashicorp/consul/api"
 	flags "github.com/jessevdk/go-flags"
+	"github.com/pkg/errors"
 	"io/ioutil"
+	"log"
 	"net/url"
 	"os"
 )
@@ -21,11 +23,11 @@ func getConfigs() (map[string]api.Config, error) {
 	f := fmt.Sprintf("%s/.cnodes", os.Getenv("HOME"))
 	data, err := ioutil.ReadFile(f)
 	if err != nil {
-		panic(err)
+		return configs, errors.Wrapf(err, "failed to read %q", f)
 	}
 	ini, err := ini.Load(data, f)
 	if err != nil {
-		panic(err)
+		return configs, errors.Wrapf(err, "failed to load %q", f)
 	}
 	for _, sec := range ini.Sections() {
 		api_config := api.DefaultConfig()
@@ -33,7 +35,7 @@ func getConfigs() (map[string]api.Config, error) {
 
 		u, err := url.Parse(consul_url)
 		if err != nil {
-			panic(err)
+			return configs, errors.Wrapf(err, "failed to parse consul_url %q", consul_url)
 		}
 		api_config.Address = u.Host
 		api_config.Scheme = u.Scheme
@@ -42,22 +44,22 @@ func getConfigs() (map[string]api.Config, error) {
 	return configs, nil
 }
 
-func printNodes(config api.Config) {
+func printNodes(config api.Config) error {
 	client, err := api.NewClient(&config)
 	if err != nil {
-		panic(err)
+		return errors.Wrap(err, "failed to create consul client")
 	}
 	catalog := client.Catalog()
 	query_options := api.QueryOptions{}
 	nodes, _, err := catalog.Nodes(&query_options)
 	if err != nil {
-		panic(err)
+		return errors.Wrapf(err, "failed to fetch consul nodes")
 	}
 
 	health := client.Health()
 	healthChecks, _, err := health.State("any", &query_options)
 	if err != nil {
-		panic(err)
+		return errors.Wrapf(err, "failed to fetch consul health states")
 	}
 
 	for _, node := range nodes {
@@ -76,6 +78,7 @@ func printNodes(config api.Config) {
 
 		}
 	}
+	return nil
 }
 
 func main() {
@@ -83,17 +86,20 @@ func main() {
 	_, err := flags.Parse(&opts)
 
 	if err != nil {
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 
 	configs, err := getConfigs()
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	if opts.All {
 		for _, cfg := range configs {
 			printNodes(cfg)
 		}
 	}
-	printNodes(configs[opts.Profile])
+	err = printNodes(configs[opts.Profile])
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
