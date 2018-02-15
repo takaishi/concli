@@ -11,54 +11,38 @@ import (
 	"os"
 )
 
-type Config struct {
-	URL string
-}
-
 type Options struct {
-	Profile string `short:"p" long:"profile" default:"default"`
+	Profile string `short:"p" long:"profile" default:"DEFAULT"`
+	All     bool   `short:"a" long:"all"`
 }
 
-func clientConfig(profile string) (api.Config, error) {
-	api_config := api.DefaultConfig()
-
+func getConfigs() (map[string]api.Config, error) {
+	configs := map[string]api.Config{}
 	f := fmt.Sprintf("%s/.cnodes", os.Getenv("HOME"))
 	data, err := ioutil.ReadFile(f)
 	if err != nil {
-		return *api_config, err
+		panic(err)
 	}
 	ini, err := ini.Load(data, f)
 	if err != nil {
-		return *api_config, err
-	}
-	sec, err := ini.GetSection(profile)
-	if err != nil {
-		return *api_config, err
-	}
-	consul_url := sec.Key("url").String()
-
-	u, err := url.Parse(consul_url)
-	if err != nil {
-		return *api_config, err
-	}
-	api_config.Address = u.Host
-	api_config.Scheme = u.Scheme
-	return *api_config, nil
-}
-
-func main() {
-	var opts Options
-	_, err := flags.Parse(&opts)
-
-	if err != nil {
-		os.Exit(1)
-	}
-
-	config, err := clientConfig(opts.Profile)
-	if err != nil {
 		panic(err)
 	}
+	for _, sec := range ini.Sections() {
+		api_config := api.DefaultConfig()
+		consul_url := sec.Key("url").String()
 
+		u, err := url.Parse(consul_url)
+		if err != nil {
+			panic(err)
+		}
+		api_config.Address = u.Host
+		api_config.Scheme = u.Scheme
+		configs[sec.Name()] = *api_config
+	}
+	return configs, nil
+}
+
+func printNodes(config api.Config) {
 	client, err := api.NewClient(&config)
 	if err != nil {
 		panic(err)
@@ -92,4 +76,24 @@ func main() {
 
 		}
 	}
+}
+
+func main() {
+	var opts Options
+	_, err := flags.Parse(&opts)
+
+	if err != nil {
+		os.Exit(1)
+	}
+
+	configs, err := getConfigs()
+	if err != nil {
+		panic(err)
+	}
+	if opts.All {
+		for _, cfg := range configs {
+			printNodes(cfg)
+		}
+	}
+	printNodes(configs[opts.Profile])
 }
