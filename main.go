@@ -13,6 +13,7 @@ import (
 	"os"
 )
 
+// Options is command line flags.
 type Options struct {
 	Profile string `short:"p" long:"profile" default:"DEFAULT"`
 	All     bool   `short:"a" long:"all"`
@@ -30,16 +31,16 @@ func getConfigs() (map[string]api.Config, error) {
 		return configs, errors.Wrapf(err, "failed to load %q", f)
 	}
 	for _, sec := range ini.Sections() {
-		api_config := api.DefaultConfig()
-		consul_url := sec.Key("url").String()
+		apiConfig := api.DefaultConfig()
+		consulURL := sec.Key("url").String()
 
-		u, err := url.Parse(consul_url)
+		u, err := url.Parse(consulURL)
 		if err != nil {
-			return configs, errors.Wrapf(err, "failed to parse consul_url %q", consul_url)
+			return configs, errors.Wrapf(err, "failed to parse consulURL %q", consulURL)
 		}
-		api_config.Address = u.Host
-		api_config.Scheme = u.Scheme
-		configs[sec.Name()] = *api_config
+		apiConfig.Address = u.Host
+		apiConfig.Scheme = u.Scheme
+		configs[sec.Name()] = *apiConfig
 	}
 	return configs, nil
 }
@@ -50,14 +51,14 @@ func printNodes(config api.Config) error {
 		return errors.Wrap(err, "failed to create consul client")
 	}
 	catalog := client.Catalog()
-	query_options := api.QueryOptions{}
-	nodes, _, err := catalog.Nodes(&query_options)
+	queryOptions := api.QueryOptions{}
+	nodes, _, err := catalog.Nodes(&queryOptions)
 	if err != nil {
 		return errors.Wrapf(err, "failed to fetch consul nodes")
 	}
 
 	health := client.Health()
-	healthChecks, _, err := health.State("any", &query_options)
+	healthChecks, _, err := health.State("any", &queryOptions)
 	if err != nil {
 		return errors.Wrapf(err, "failed to fetch consul health states")
 	}
