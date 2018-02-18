@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/takaishi/cnodes/config"
 	"log"
+	"net/url"
 	"os"
 )
 
@@ -62,9 +63,22 @@ func main() {
 		os.Exit(0)
 	}
 
-	configs, err := config.GetConfigs()
+	configs := map[string]api.Config{}
+	ini, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalln(err)
+	}
+	for _, sec := range ini.Sections() {
+		apiConfig := api.DefaultConfig()
+		consulURL := sec.Key("url").String()
+
+		u, err := url.Parse(consulURL)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		apiConfig.Address = u.Host
+		apiConfig.Scheme = u.Scheme
+		configs[sec.Name()] = *apiConfig
 	}
 	if opts.All {
 		for _, cfg := range configs {
