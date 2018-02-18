@@ -87,7 +87,7 @@ func main() {
 	_, err := flags.Parse(&opts)
 
 	if err != nil {
-		log.Fatalln(err)
+		os.Exit(0)
 	}
 
 	configs, err := getConfigs()
