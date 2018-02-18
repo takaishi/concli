@@ -3,13 +3,11 @@ package main
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"github.com/go-ini/ini"
 	"github.com/hashicorp/consul/api"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/pkg/errors"
-	"io/ioutil"
+	"github.com/takaishi/cnodes/config"
 	"log"
-	"net/url"
 	"os"
 )
 
@@ -17,32 +15,6 @@ import (
 type Options struct {
 	Profile string `short:"p" long:"profile" default:"DEFAULT" description:"DC section name to print."`
 	All     bool   `short:"a" long:"all" description:"Print all nodes on all DC."`
-}
-
-func getConfigs() (map[string]api.Config, error) {
-	configs := map[string]api.Config{}
-	f := fmt.Sprintf("%s/.cnodes", os.Getenv("HOME"))
-	data, err := ioutil.ReadFile(f)
-	if err != nil {
-		return configs, errors.Wrapf(err, "failed to read %q", f)
-	}
-	ini, err := ini.Load(data, f)
-	if err != nil {
-		return configs, errors.Wrapf(err, "failed to load %q", f)
-	}
-	for _, sec := range ini.Sections() {
-		apiConfig := api.DefaultConfig()
-		consulURL := sec.Key("url").String()
-
-		u, err := url.Parse(consulURL)
-		if err != nil {
-			return configs, errors.Wrapf(err, "failed to parse consulURL %q", consulURL)
-		}
-		apiConfig.Address = u.Host
-		apiConfig.Scheme = u.Scheme
-		configs[sec.Name()] = *apiConfig
-	}
-	return configs, nil
 }
 
 func printNodes(config api.Config) error {
@@ -90,7 +62,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	configs, err := getConfigs()
+	configs, err := config.GetConfigs()
 	if err != nil {
 		log.Fatalln(err)
 	}
