@@ -7,8 +7,8 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	"github.com/pkg/errors"
 	"github.com/takaishi/cnodes/config"
+	"github.com/takaishi/cnodes/consul"
 	"log"
-	"net/url"
 	"os"
 )
 
@@ -57,29 +57,22 @@ func printNodes(config api.Config) error {
 
 func main() {
 	var opts Options
-	_, err := flags.Parse(&opts)
 
+	_, err := flags.Parse(&opts)
 	if err != nil {
 		os.Exit(0)
 	}
 
-	configs := map[string]api.Config{}
 	ini, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	for _, sec := range ini.Sections() {
-		apiConfig := api.DefaultConfig()
-		consulURL := sec.Key("url").String()
 
-		u, err := url.Parse(consulURL)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		apiConfig.Address = u.Host
-		apiConfig.Scheme = u.Scheme
-		configs[sec.Name()] = *apiConfig
+	configs, err := consul.CreateAPIConfigs(ini)
+	if err != nil {
+		log.Fatalln(err)
 	}
+
 	if opts.All {
 		for _, cfg := range configs {
 			printNodes(cfg)
