@@ -15,8 +15,8 @@ import (
 
 // Options is command line flags.
 type Options struct {
-	Profile string `short:"p" long:"profile" default:"DEFAULT"`
-	All     bool   `short:"a" long:"all"`
+	Profile string `short:"p" long:"profile" default:"DEFAULT" description:"DC section name to print."`
+	All     bool   `short:"a" long:"all" description:"Print all nodes on all DC."`
 }
 
 func getConfigs() (map[string]api.Config, error) {
