@@ -6,8 +6,8 @@ import (
 	"github.com/hashicorp/consul/api"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/pkg/errors"
-	"github.com/takaishi/cnodes/config"
-	"github.com/takaishi/cnodes/consul"
+	"github.com/takaishi/concli/config"
+	"github.com/takaishi/concli/consul"
 	"log"
 	"os"
 )

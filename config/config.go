@@ -9,7 +9,7 @@ import (
 )
 
 func LoadConfig() (*ini.File, error) {
-	f := fmt.Sprintf("%s/.cnodes", os.Getenv("HOME"))
+	f := fmt.Sprintf("%s/.concli", os.Getenv("HOME"))
 	data, err := ioutil.ReadFile(f)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to read %q", f)

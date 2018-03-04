@@ -1,9 +1,9 @@
-# cnodes
+# concli
 
-cnodes is command line tool to print consul nodes with health status.
+concli is command line tool for consul.
 
 ```
-$ cnodes
+$ concli
 critical  172.18.0.3       client_1 dc1
 passing   172.18.0.4       client_2 dc1
 passing   172.18.0.2       server dc1
@@ -12,7 +12,7 @@ passing   172.18.0.2       server dc1
 ## Config
 
 ```
-$ cat ~/.cnodes
+$ cat ~/.concli
 [DEFAULT]
 url = http://localhost:8500/
 
