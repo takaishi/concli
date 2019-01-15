@@ -12,5 +12,6 @@ require (
 	github.com/mattn/go-isatty v0.0.3
 	github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747
 	github.com/pkg/errors v0.8.0
+	github.com/urfave/cli v1.20.0
 	golang.org/x/sys v0.0.0-20180202135801-37707fdb30a5
 )
