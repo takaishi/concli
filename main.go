@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/takaishi/concli/cmd"
 	"github.com/takaishi/concli/config"
-	"github.com/takaishi/concli/consul"
 	"github.com/urfave/cli"
 	"log"
 	"os"
@@ -29,12 +28,7 @@ func main() {
 			},
 			Action: func(c *cli.Context) error {
 
-				ini, err := config.LoadConfig()
-				if err != nil {
-					return err
-				}
-
-				configs, err := consul.CreateAPIConfigs(ini)
+				configs, err := config.LoadConfig()
 				if err != nil {
 					return err
 				}
@@ -67,15 +61,11 @@ func main() {
 
 			Action: func(c *cli.Context) error {
 
-				ini, err := config.LoadConfig()
+				configs, err := config.LoadConfig()
 				if err != nil {
 					return err
 				}
 
-				configs, err := consul.CreateAPIConfigs(ini)
-				if err != nil {
-					return err
-				}
 				if c.Bool("all") {
 					for _, cfg := range configs {
 						cmd.PrintServices(c, cfg)
